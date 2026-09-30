@@ -1,0 +1,282 @@
+<!doctype html>
+<!--
+  Dueplans — idea-0003 r2 — local shadow-launch marketing page (fully inert).
+  Session: expectant-parents-ca__20260926-131418 · built 2026-09-26 by engineer.
+  Implements: ui-ux/spec-idea-0003__20260926-170000.md on the frozen copy
+  inventory marketing-copy/copy-idea-0003__20260926-160000.md and the design
+  tokens of marketing-designer/art-direction-idea-0003__20260926-163000.md.
+  Two-state contract: signup-config.js is a comment-only stub, so
+  window.__SHADOW_SIGNUP_CONFIG__ stays undefined and signup.js no-ops.
+  See README.md for provenance and the inertness explanation.
+-->
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dueplans — Your pregnancy deadlines, on one dated plan</title>
+<meta name="description" content="A personal, dated timeline of Ontario’s hard pregnancy deadlines — daycare waitlists, EI paperwork, ESA notice — every task with its official source. Launching Q4 2026.">
+<meta name="theme-color" content="#FAF8FC">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%235E2958'/%3E%3Crect x='6' y='9' width='20' height='17' rx='3' fill='%23FAF8FC'/%3E%3Cpath d='M11 5.5v5M21 5.5v5' stroke='%23FAF8FC' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M6 13h20' stroke='%235E2958' stroke-width='1.5'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <p class="wordmark">Dueplans</p>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+
+  <!-- Hero — BD-01, H1-01..04 -->
+  <section class="hero" aria-labelledby="hero-h">
+    <div class="container hero-grid">
+      <div class="hero-copy">
+        <p class="badge"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="4.5" width="14" height="12.5" rx="2"/><path d="M7 2.75v3.5M13 2.75v3.5M3 8.5h14"/></svg>Launching Q4 2026</p>
+        <h1 id="hero-h">Your pregnancy deadlines, on <span class="hl">one dated plan</span>.</h1>
+        <p class="lead">Tell us your due date and your city, and we’ll build a personal timeline of the hard deadlines that can’t slip — daycare waitlists, EI paperwork, ESA notice — every task dated, every deadline sourced.</p>
+        <div class="cta-row">
+          <a class="btn-primary" href="#what-you-get">See what’s in the plan</a>
+          <a class="link-quiet" href="#launch-updates">Get launch updates<svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 7.5l5 5 5-5"/></svg></a>
+        </div>
+      </div>
+      <!-- Hero motif — planner sheet with a readable mini sample plan (r3
+           user-directed presentational revision): the three rows reuse frozen
+           copy phrases (TL-01, TL-02, SC-01); chips and caption are sample
+           data under the sanctioned SC-02 sample-due-date convention; rows
+           are plain, non-interactive elements; the straw title bar and stamp
+           stay decorative (aria-hidden individually). -->
+      <div class="hero-motif">
+        <span class="motif-bar" aria-hidden="true"></span>
+        <ul class="motif-plan">
+          <li class="motif-row">
+            <span class="motif-chip">By Jun 8, 2026</span>
+            <span class="motif-task">Contact a midwifery practice group</span>
+          </li>
+          <li class="motif-row">
+            <span class="motif-chip">By Oct 5, 2026</span>
+            <span class="motif-task">Join child care waitlists in your city</span>
+          </li>
+          <li class="motif-row">
+            <span class="motif-chip">By Jan 4, 2027</span>
+            <span class="motif-task">Give your employer written notice</span>
+          </li>
+        </ul>
+        <div class="motif-foot">
+          <p class="motif-note">Sample, computed from a sample due date of January 18, 2027</p>
+          <span class="motif-stamp" aria-hidden="true"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PN — problem narrative -->
+  <section id="problem" class="section" aria-labelledby="pn-h">
+    <div class="container ruled">
+      <h2 id="pn-h">The deadlines start before the due date</h2>
+      <div class="stack">
+        <p>You found out you’re pregnant. Between the first appointment and the due date sits a quieter job: paperwork with hard dates attached — and some of those dates arrive before you’ve told anyone at work.</p>
+        <p>The rules live in a dozen places — an Ontario employment standards guide, a Service Canada portal, a city child care site, a midwifery association page. None of them know your due date, and none of them talk to each other.</p>
+        <p>Miss one and it costs real things — a midwifery space, a place in a child care line, weeks of leave you could have planned better. It’s not that the information is secret. It’s that nobody has stitched it to your calendar.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ST — stat callouts (unheaded band; figures re-presented, aria-hidden; attribution verbatim) -->
+  <section id="stats" class="stats-band">
+    <div class="container stats-grid">
+      <div class="stat">
+        <p class="stat-num" aria-hidden="true">31%</p>
+        <p class="stat-body">31% of Canadian parents of children 0 to 5 who weren’t using child care had a child on a waitlist in 2025 — up from 26% in 2023.</p>
+        <p class="stat-source">(Statistics Canada, released October 21, 2025)</p>
+      </div>
+      <div class="stat">
+        <p class="stat-num" aria-hidden="true">56%</p>
+        <p class="stat-body">For parents of babies under one, it’s 56%.</p>
+        <p class="stat-source">(Statistics Canada, released October 21, 2025)</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WG — what you get (anchor #what-you-get) -->
+  <section id="what-you-get" class="section" aria-labelledby="wg-h">
+    <div class="container">
+      <h2 id="wg-h">What you get</h2>
+      <p class="wg-lead">Your personal dated deadline plan.</p>
+      <div class="feature-row">
+        <span class="icon-well" aria-hidden="true"><svg aria-hidden="true" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="4" y="3" width="12" height="14" rx="2"/><path d="M7.5 8h5"/><path d="M7.5 13l1.7 1.7 3.3-3.9"/></svg></span>
+        <p><span class="frag">Answer five questions</span> — your due date, your Ontario city or region, your work situation, and whether you’re planning midwife or OB care, and child care. In about a minute, you have a dated timeline of about ten hard-deadline tasks, in the order they hit.</p>
+      </div>
+      <div class="feature-row">
+        <span class="icon-well" aria-hidden="true"><svg aria-hidden="true" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="3.5" y="5" width="13" height="10.5" rx="2"/><path d="M6.5 8.5h7M6.5 11.5h4.5M6.5 13.5h2.5"/></svg></span>
+        <p><span class="frag">Every task card shows three things:</span> what to do and by when; a one-line why it matters; and the official government page it’s based on — with the date that page was last checked printed right on the card.</p>
+      </div>
+      <div class="feature-row">
+        <span class="icon-well" aria-hidden="true"><svg aria-hidden="true" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M6.5 7.5V4h7v3.5"/><rect x="3.5" y="7.5" width="13" height="5.5" rx="1.5"/><path d="M6.5 17v-3.5h7V17"/></svg></span>
+        <p><span class="frag">Print your plan</span> in one click and pin it to the fridge. That’s the whole product.</p>
+      </div>
+
+      <!-- TL — the ten tasks (unheaded block; no dates drawn; citations on their own lines) -->
+      <p class="lead tl-intro">Here’s what lands on your plan — dated to you, sourced to the official page.</p>
+      <ol class="tasks">
+        <li class="task-row">
+          <span class="task-chip" aria-hidden="true"></span>
+          <p class="task-text">Contact a midwifery practice group. The official advice is to call as early in pregnancy as possible, so your midwife has space for you. <span class="citation">(ontario.ca — Midwifery in Ontario, updated January 22, 2026)</span></p>
+        </li>
+        <li class="task-row">
+          <span class="task-chip" aria-hidden="true"></span>
+          <p class="task-text">Join child care waitlists in your city — your plan dates this from your due date. In Toronto, the city-run TELCCS registry covers city centres, while private and non-profit centres take applications directly. <span class="citation">(City of Toronto — TELCCS registration, September 23, 2025)</span></p>
+        </li>
+        <li class="task-row">
+          <span class="task-chip" aria-hidden="true"></span>
+          <p class="task-text">Give your employer written notice to start pregnancy or parental leave. Ontario’s Employment Standards Act requires at least 2 weeks’ written notice before your leave begins. <span class="citation">(Ontario Ministry of Labour — ESA guide, updated July 8, 2024)</span></p>
+        </li>
+        <li class="task-row">
+          <span class="task-chip" aria-hidden="true"></span>
+          <p class="task-text">Apply for EI maternity and parental benefits. Service Canada says apply as soon as possible after you stop working — if you apply more than 4 weeks after your last day of work, you may lose benefits. <span class="citation">(canada.ca, as of September 26, 2026)</span></p>
+        </li>
+        <li class="task-row">
+          <span class="task-chip" aria-hidden="true"></span>
+          <p class="task-text">Choose standard or extended parental benefits. They pay over different lengths, and you can’t switch between them once a week of parental benefits has been paid. <span class="citation">(canada.ca, as of September 26, 2026)</span></p>
+        </li>
+        <li class="task-row">
+          <span class="task-chip" aria-hidden="true"></span>
+          <p class="task-text">Register for prenatal classes. Public health programs and private educators each open registration on their own schedule — your plan puts it on your calendar. <span class="citation">(city public-health program pages, e.g. Toronto Public Health)</span></p>
+        </li>
+        <li class="task-row">
+          <span class="task-chip" aria-hidden="true"></span>
+          <p class="task-text">Register the birth with Ontario’s 5-in-1 newborn bundle — birth registration, birth certificate, SIN, Canada Child Benefit and an RESP referral in one online application, free within the first 12 months. <span class="citation">(ontario.ca — Register a birth, updated January 14, 2026)</span></p>
+        </li>
+        <li class="task-row">
+          <span class="task-chip" aria-hidden="true"></span>
+          <p class="task-text">Sort the Canada Child Benefit. In Ontario you can usually apply for the CCB at the same time as you register the birth, at the hospital or birthing centre — and a claim can cover a period that started up to 11 months ago. <span class="citation">(canada.ca, as of September 26, 2026)</span></p>
+        </li>
+        <li class="task-row">
+          <span class="task-chip" aria-hidden="true"></span>
+          <p class="task-text">Start parental leave on time. Under Ontario’s ESA, parental leave must begin no later than 78 weeks after the birth or adoption placement. <span class="citation">(Ontario Ministry of Labour — ESA guide, updated July 8, 2024)</span></p>
+        </li>
+        <li class="task-row">
+          <span class="task-chip" aria-hidden="true"></span>
+          <p class="task-text">Change your leave plans the right way. A different notice applies to changing your leave end date, returning early, or resigning: 4 weeks’ written notice. <span class="citation">(Ontario Ministry of Labour — ESA guide, updated July 8, 2024)</span></p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- SC — sample task card (specimen; readable DOM; zero interactive elements) -->
+  <section id="sample-card">
+    <div class="specimen-stage">
+      <div class="specimen">
+        <p class="specimen-title">Give your employer written notice</p>
+        <p class="date-chip">By: January 4, 2027</p>
+        <p class="sample-note">— sample, computed from a sample due date of January 18, 2027</p>
+        <p class="why"><span class="frag">Why:</span> The ESA requires at least 2 weeks’ written notice before your pregnancy or parental leave begins.</p>
+        <hr>
+        <p class="source-bar">Source: ontario.ca — Pregnancy and parental leave, updated July 8, 2024 <span class="stamp-group">· <span class="stamp"><svg viewBox="0 0 20 20" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4.5 10.5l3.8 3.8L15.5 6.5"/></svg><span>Last checked: January 5, 2027</span></span></span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PF — how it works -->
+  <section id="how-it-works" class="section" aria-labelledby="pf-h">
+    <div class="container">
+      <h2 id="pf-h">How it works</h2>
+      <ul class="steps">
+        <li class="step">
+          <span class="icon-well" aria-hidden="true"><svg aria-hidden="true" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M3.5 5.5h13M3.5 10h13M3.5 14.5h13M12.5 3.5v4M7 8v4M13.5 12.5v4"/></svg></span>
+          <p><span class="frag">Five questions, one plan</span> — due date, city, work situation, and whether you’re planning midwife or OB care, and child care. Nothing else to type.</p>
+        </li>
+        <li class="step">
+          <span class="icon-well" aria-hidden="true"><svg aria-hidden="true" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="3" y="4.5" width="14" height="12.5" rx="2"/><path d="M7 2.75v3.5M13 2.75v3.5"/><circle cx="7.25" cy="11" r="1" fill="currentColor" stroke="none"/><circle cx="10" cy="11" r="1" fill="currentColor" stroke="none"/><circle cx="12.75" cy="11" r="1" fill="currentColor" stroke="none"/><circle cx="7.25" cy="14.25" r="1" fill="currentColor" stroke="none"/></svg></span>
+          <p><span class="frag">Dates computed for you</span> — every task lands on the calendar when it applies to your due date, not on a generic week-by-week feed.</p>
+        </li>
+        <li class="step">
+          <span class="icon-well" aria-hidden="true"><svg aria-hidden="true" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M10 2.75l6 2.25v4.5c0 3.9-2.5 6.5-6 7.75-3.5-1.25-6-3.85-6-7.75V5z"/><path d="M7.25 9.9l1.9 1.9 3.6-4.2"/></svg></span>
+          <p><span class="frag">Sourced, dated, maintained</span> — each task card links the government page it’s based on and shows when that page was last checked. When official rules change, cards get updated.</p>
+        </li>
+        <li class="step">
+          <span class="icon-well" aria-hidden="true"><svg aria-hidden="true" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M10 17.25S4.5 12.4 4.5 8.25a5.5 5.5 0 0 1 11 0c0 4.15-5.5 9-5.5 9z"/><circle cx="10" cy="8.25" r="2"/></svg></span>
+          <p><span class="frag">City-specific where it counts</span> — Toronto, Ottawa and the rest of Ontario each handle child care waitlists differently. Your plan reflects your city’s rules.</p>
+        </li>
+        <li class="step">
+          <span class="icon-well" aria-hidden="true"><svg aria-hidden="true" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M6.5 7.5V4h7v3.5"/><rect x="3.5" y="7.5" width="13" height="5.5" rx="1.5"/><path d="M6.5 17v-3.5h7V17"/></svg></span>
+          <p><span class="frag">Print it, pin it</span> — one click to a clean printed checklist for the fridge or your next appointment.</p>
+        </li>
+        <li class="step">
+          <span class="icon-well" aria-hidden="true"><svg aria-hidden="true" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="5" y="9" width="10" height="7.5" rx="1.5"/><path d="M7.25 9V6.75a2.75 2.75 0 0 1 5.5 0V9"/><circle cx="10" cy="12.75" r="1.1" fill="currentColor" stroke="none"/></svg></span>
+          <p><span class="frag">No account needed</span> — your five answers are all the plan takes, and nothing to install. The email form on this page is just for launch news.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- PR — price -->
+  <section id="pricing" class="section" aria-labelledby="pr-h">
+    <div class="container price-wrap">
+      <h2 id="pr-h">One price. Your whole plan.</h2>
+      <p class="price-p"><span class="price-line">CA$29. One time.</span> Your complete dated plan — every task, every official citation, every print-out. No subscription. No upsell.</p>
+      <p class="lead price-lead">Pay once, at launch — leaving your email below just tells us you want to know when it’s live.</p>
+    </div>
+  </section>
+
+  <!-- FQ — questions (static, accordion-less, no JS; em-dash at the Q/A split retained) -->
+  <section id="questions" class="section" aria-labelledby="fq-h">
+    <div class="container faq-list">
+      <h2 id="fq-h">Questions</h2>
+      <div class="faq-item">
+        <p class="faq-line"><span class="faq-q">Q: Is this medical advice?</span><br><span class="faq-a">— A: No. The plan sequences logistics — which forms, which offices, which dates. For anything medical, talk to your own health care provider.</span></p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-line"><span class="faq-q">Q: Does it tell me if I qualify for benefits?</span><br><span class="faq-a">— A: No. The plan doesn’t calculate payments or decide whether you qualify for anything. It tells you what to do, by when, and links the official page where the actual rules live.</span></p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-line"><span class="faq-q">Q: Why not just use a checklist app?</span><br><span class="faq-a">— A: Generic pregnancy checklists aren’t built around Ontario’s rules. Your plan is built from the actual government pages — ESA notice periods, EI application timing, Toronto’s city-run child care registry — and every task shows its source and the date it was last checked.</span></p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-line"><span class="faq-q">Q: What does it cost?</span><br><span class="faq-a">— A: CA$29, once, at launch. No subscription, no recurring charges.</span></p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-line"><span class="faq-q">Q: Which cities does it cover?</span><br><span class="faq-a">— A: It’s built for Ontario parents, starting with Toronto/GTA and Ottawa. Every Ontario parent gets a plan, with city-specific child care details where they exist.</span></p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-line"><span class="faq-q">Q: When does it launch?</span><br><span class="faq-a">— A: Q4 2026. Leave your email below and you’ll hear from us the moment it’s live.</span></p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-line"><span class="faq-q">Q: What happens to my information?</span><br><span class="faq-a">— A: Your five answers are computed in your browser — your due date and city aren’t sent anywhere. The email you leave on this page is stored only to send launch news, as described under the form.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SB — signup band (the page's only saturated dark block; launch success/error copy is live-variant only and exists nowhere on this page) -->
+  <section id="launch-updates" class="signup-band" aria-labelledby="sb-h">
+    <div class="band-inner">
+      <h2 id="sb-h">Get the launch details</h2>
+      <p class="lead band-lead">Leave your email, and you’ll hear from us when we launch.</p>
+      <form class="signup-form" data-signup>
+        <label for="email" class="band-label">Email address</label>
+        <input type="email" id="email" name="email" autocomplete="email" inputmode="email" autocapitalize="none" autocorrect="off" spellcheck="false">
+        <button type="button" class="band-btn">Notify me</button>
+        <p class="consent">We’ll store your email, the page you signed up on, and basic technical details (time, IP address, browser) for one purpose: sending you launch news for Dueplans. No marketing lists, no sharing.</p>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<!-- FT — footer -->
+<footer class="site-footer" role="contentinfo">
+  <div class="container">
+    <p class="footer-mark">Dueplans</p>
+    <p class="footer-sources">Sources: Ontario Ministry of Labour — ESA guide (updated July 8, 2024) · City of Toronto — TELCCS registration (September 23, 2025) · Statistics Canada (released October 21, 2025) · Service Canada — canada.ca EI and CCB pages (as of September 26, 2026) · ontario.ca — Midwifery in Ontario (updated January 22, 2026); Register a birth (updated January 14, 2026)</p>
+    <p class="footer-note">Dueplans is an independent planning tool for Ontario parents. It is not affiliated with, endorsed by, or operated by any government, health authority or professional association.</p>
+    <p class="footer-note">Not medical advice. The plan covers logistics only — your own health care provider guides your care.</p>
+    <p class="footer-legal">Launching Q4 2026 · © 2026 Dueplans · All official rules live on the government pages cited throughout this site.</p>
+  </div>
+</footer>
+
+<script src="signup.js" defer></script>
+<script src="signup-config.js" defer></script>
+</body>
+</html>

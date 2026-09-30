@@ -1,0 +1,769 @@
+/*
+  Dueplans — idea-0003 r2 — "The personal file" (plum & straw)
+  Implements marketing-designer/art-direction-idea-0003__20260926-163000.md §11
+  tokens verbatim (all 22 contrast pairs binding) on ui-ux/spec-idea-0003__20260926-170000.md.
+  Local assets only — system font stacks, inline SVG, no external requests.
+  Breakpoints: 34em (band form row) · 40em (2-col grids) · 62em (hero split).
+*/
+
+:root {
+  /* grounds */
+  --paper: #FAF8FC;
+  --surface: #FFFFFF;
+  --wash: #F2EDF8;
+  /* text */
+  --ink: #2E2242;
+  --ink-soft: #5C5074;
+  /* brand + action */
+  --accent: #5E2958;
+  --accent-hover: #4E2149;
+  /* band */
+  --band: #3B1D47;
+  --band-text: #F8F2FB;
+  --band-soft: #CDB9DE;
+  /* straw (dates + band CTA) */
+  --highlight: #F3E4C6;
+  --highlight-ink: #4A3210;
+  --band-btn: #E9C87F;
+  --band-btn-ink: #2E1738;
+  --band-btn-hover: #E0BA6F;
+  /* utility (live variant only) */
+  --success: #14554A;
+  --error: #9C2B1F;
+  /* structure + motif */
+  --rule: #E4DCEE;
+  --dot: #D9CFEA;
+  /* type */
+  --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+  --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --fs-display: clamp(2.125rem, 1.55rem + 2.6vw, 3rem);
+  --fs-h2: clamp(1.375rem, 1.2rem + 0.9vw, 1.75rem);
+  --fs-artifact: 1.25rem;
+  --fs-lead: 1.125rem;
+  --fs-num: clamp(2rem, 1.6rem + 1.8vw, 2.5rem);
+  --fs-body: 1.0625rem;
+  --fs-title: 1.0625rem;
+  --fs-label: 0.9375rem;
+  --fs-small: 0.875rem;
+  /* space + shape */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+  --pad-sec: clamp(3.5rem, 8vw, 5.5rem);
+  --pad-band: clamp(4rem, 9vw, 6.5rem);
+  --pad-inline: clamp(1.25rem, 5vw, 2rem);
+  --container: 68rem;
+  --measure: 38rem;
+  --measure-tl: 42rem;
+  --card: 34rem;
+  --band-form: 36rem;
+  --radius-s: 8px;
+  --radius-m: 10px;
+  --radius-l: 14px;
+  --radius-pill: 999px;
+  --shadow-card: 0 2px 6px rgba(46, 34, 66, 0.08);
+}
+
+/* Base */
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html {
+  color-scheme: light;
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: auto; /* explicit default — never smooth (no motion) */
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 400 var(--fs-body)/1.65 var(--font-ui);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+h1,
+h2,
+p,
+ul,
+ol,
+figure { margin: 0; padding: 0; }
+
+h1 {
+  font: 700 var(--fs-display)/1.15 var(--font-display);
+  color: var(--ink);
+  max-width: 20ch;
+  margin-block: 0 var(--space-4);
+}
+
+h2 {
+  font: 700 var(--fs-h2)/1.25 var(--font-display);
+  color: var(--ink);
+  margin-block: 0 var(--space-5);
+}
+
+ul,
+ol { list-style: none; }
+
+svg { flex: 0 0 auto; }
+
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--pad-inline);
+}
+
+/* Focus visibility (WCAG 2.2 2.4.11/2.4.13): accent on light grounds (10.29:1
+   on paper), band-btn inside the dark band (8.97:1 on band). */
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.signup-band :focus-visible {
+  outline-color: var(--band-btn);
+}
+
+main:focus { outline: none; }
+
+/* Skip link — first tab stop, revealed on focus */
+
+.skip-link {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 100;
+  transform: translateY(-300%);
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  background: var(--accent);
+  color: #FFFFFF;
+  font: 600 var(--fs-label)/1.2 var(--font-ui);
+  padding: 12px 18px;
+  border-radius: var(--radius-m);
+  text-decoration: none;
+}
+
+.skip-link:focus { transform: none; }
+
+/* Header wordmark (decorative; not a link — the h1 carries the brand promise) */
+
+.site-header { border-bottom: 1px solid var(--rule); }
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  padding-block: 16px;
+}
+
+.wordmark {
+  font: 700 1.25rem/1.2 var(--font-display);
+  color: var(--ink);
+}
+
+/* Section rhythm: half pad-sec above and below ⇒ pad-sec between neighbours */
+
+.section { padding-block: calc(var(--pad-sec) / 2); }
+
+.ruled { border-top: 1px solid var(--rule); padding-block-start: var(--space-6); }
+
+/* Stack — prose paragraphs at --measure with 16px gaps */
+
+.stack > p {
+  max-width: var(--measure);
+}
+
+.stack > p + p { margin-top: var(--space-4); }
+
+/* Hero (BD + H1) */
+
+.hero {
+  padding-block-start: clamp(4rem, 9vw, 6rem);
+  padding-block-end: var(--pad-sec);
+}
+
+.hero-grid { display: grid; gap: var(--space-7); align-items: center; }
+
+.badge {
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1.5px solid var(--accent);
+  border-radius: var(--radius-pill);
+  color: var(--accent);
+  font: 600 var(--fs-label)/1.2 var(--font-ui);
+  padding: 6px 14px;
+  margin-block: 0 var(--space-4);
+}
+
+/* Straw highlight swipe — presentation-only span behind "one dated plan" */
+
+.hl {
+  background: var(--highlight);
+  padding: 0 0.15em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+.lead {
+  font: 400 var(--fs-lead)/1.6 var(--font-ui);
+  color: var(--ink-soft);
+  max-width: var(--measure);
+}
+
+.hero .lead { margin-block: 0 var(--space-5); }
+
+.cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 14px 24px;
+  background: var(--accent);
+  color: #FFFFFF;
+  border-radius: var(--radius-m);
+  font: 600 var(--fs-label)/1.2 var(--font-ui);
+  text-decoration: none;
+  transition: background-color 160ms ease;
+}
+
+.btn-primary:hover { background: var(--accent-hover); }
+
+.link-quiet {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 10px 12px;
+  color: var(--accent);
+  font: 600 var(--fs-label)/1.2 var(--font-ui);
+  text-decoration: none;
+}
+
+.link-quiet svg { width: 16px; height: 16px; }
+
+.link-quiet:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Planner-sheet hero motif (≥62em only) — r3 user-directed revision: the
+   sheet now carries a readable mini sample plan. Rows reuse the frozen
+   TL-01/TL-02/SC-01 phrases with straw sample-date chips under the sanctioned
+   SC-02 convention; the caption is SC-02's sample wording verbatim. Rows are
+   plain non-interactive elements; the straw title bar and stamp stay
+   decorative (aria-hidden in HTML). Contrast computed from these tokens:
+   task ink on surface 14.75:1; chip ink on straw 9.53:1; note ink-soft on
+   surface 7.36:1; worst case where a glyph lands on a grid dot (#D9CFEA):
+   task 9.88:1, note 4.93:1 — AA holds in every case. */
+
+.hero-motif { display: none; }
+
+@media (min-width: 62em) {
+  .hero-grid { grid-template-columns: 55fr 45fr; }
+
+  .hero-motif {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--space-4);
+    position: relative;
+    align-self: center;
+    background-color: var(--surface);
+    background-image: radial-gradient(var(--dot) 1px, transparent 1px);
+    background-size: 18px 18px;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-l);
+    box-shadow: var(--shadow-card);
+    aspect-ratio: 10 / 9;
+    min-height: 20rem;
+    padding: 26px 26px 22px;
+  }
+
+  /* Decorative straw title bar (the r2 empty chip, kept as a charm) */
+
+  .motif-bar {
+    width: 84px;
+    height: 22px;
+    border-radius: var(--radius-pill);
+    background: var(--highlight);
+  }
+
+  /* Mini plan — 3 chip+phrase rows; hairline separators replace the r2
+     decorative rules and are real content boundaries now */
+
+  .motif-plan { display: grid; }
+
+  .motif-row {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding-block: var(--space-3);
+  }
+
+  .motif-row + .motif-row { border-top: 1px solid var(--rule); }
+
+  .motif-chip {
+    flex: 0 0 auto;
+    margin-block-start: 1px;
+    background: var(--highlight);
+    color: var(--highlight-ink);
+    border-radius: var(--radius-s);
+    padding: 4px 9px;
+    font: 700 0.8rem/1.35 var(--font-ui);
+    font-variant-numeric: tabular-nums lining-nums;
+    white-space: nowrap;
+  }
+
+  .motif-task {
+    flex: 1 1 auto;
+    min-width: 0;
+    font: 600 0.9rem/1.4 var(--font-ui);
+    color: var(--ink);
+  }
+
+  /* Footer: sample caption left (SC-02 wording verbatim), the kept
+     verification stamp bottom-right */
+
+  .motif-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .motif-note {
+    flex: 1 1 auto;
+    min-width: 0;
+    font: 400 0.8rem/1.5 var(--font-ui);
+    color: var(--ink-soft);
+  }
+
+  .motif-stamp {
+    flex: 0 0 auto;
+    width: 128px;
+    height: 32px;
+    border: 1.5px solid var(--accent);
+    border-radius: var(--radius-pill);
+  }
+}
+
+/* ST — stat callouts on the full-width wash band (unheaded; self-describing) */
+
+.stats-band {
+  background: var(--wash);
+  padding-block: clamp(3rem, 6vw, 4rem);
+}
+
+.stats-grid { display: grid; gap: var(--space-6); }
+
+@media (min-width: 40em) {
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: var(--space-7) var(--space-8); }
+}
+
+.stat-num {
+  font: 700 var(--fs-num)/1.1 var(--font-ui);
+  font-variant-numeric: tabular-nums lining-nums;
+  color: var(--accent);
+  margin-block: 0 var(--space-2);
+}
+
+.stat-body { max-width: var(--measure); }
+
+.stat-source {
+  margin-block-start: var(--space-2);
+  font: 500 var(--fs-small)/1.5 var(--font-ui);
+  color: var(--ink-soft);
+}
+
+/* WG — what you get */
+
+.wg-lead {
+  font: 600 var(--fs-lead)/1.6 var(--font-ui);
+  color: var(--ink);
+  max-width: var(--measure);
+  margin-block: 0 var(--space-5);
+}
+
+.feature-row {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+
+.feature-row + .feature-row { margin-top: var(--space-5); }
+
+.feature-row p { max-width: 38rem; }
+
+/* Em-dash lead fragments at 600 — weight only, characters verbatim */
+
+.frag { font-weight: 600; }
+
+.icon-well {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--wash);
+  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-well svg { width: 20px; height: 20px; }
+
+/* TL — the ten tasks (unheaded block; <ol> owns the sequence; no dates drawn) */
+
+/* TL-00 opens the ten-task block with a real block gap above (48px), not a
+   weld to the last benefits row. */
+
+.tl-intro { margin-block: var(--space-7) var(--space-5); }
+
+.tasks {
+  counter-reset: task;
+  display: grid;
+  gap: var(--space-3);
+  max-width: var(--measure-tl);
+}
+
+.task-row {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-m);
+  padding: 18px 20px;
+}
+
+.task-chip {
+  counter-increment: task;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-s);
+  background: var(--wash);
+  color: var(--accent);
+  font: 700 var(--fs-body)/36px var(--font-ui);
+  font-variant-numeric: tabular-nums lining-nums;
+  text-align: center;
+}
+
+/* Ordinal chip content: CSS counter (aria-hidden span — <ol> announces sequence) */
+
+.task-chip::before { content: counter(task, decimal-leading-zero); }
+
+.task-text { flex: 1 1 auto; min-width: 0; }
+
+/* Citation fragment begins on its own line — parentheses verbatim */
+
+.citation {
+  display: block;
+  margin-block-start: var(--space-2);
+  font: 500 var(--fs-small)/1.5 var(--font-ui);
+  color: var(--ink-soft);
+}
+
+/* SC — sample task card (specimen; readable DOM, zero interactive elements) */
+
+.specimen-stage {
+  background-color: var(--wash);
+  background-image: radial-gradient(var(--dot) 1px, transparent 1px);
+  background-size: 18px 18px;
+  padding: clamp(3rem, 7vw, 4.5rem) var(--pad-inline);
+  display: flex;
+  justify-content: center;
+}
+
+.specimen {
+  width: 100%;
+  max-width: var(--card);
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-l);
+  box-shadow: var(--shadow-card);
+  padding: 28px;
+}
+
+.specimen-title {
+  font: 700 var(--fs-artifact)/1.3 var(--font-display);
+  color: var(--ink);
+  margin-block: 0 var(--space-4);
+}
+
+.date-chip {
+  display: inline-flex;
+  align-items: center;
+  background: var(--highlight);
+  color: var(--highlight-ink);
+  border-radius: var(--radius-s);
+  padding: 6px 12px;
+  font: 600 var(--fs-label)/1.4 var(--font-ui);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.sample-note {
+  margin-block-start: var(--space-2);
+  font: 400 var(--fs-small)/1.5 var(--font-ui);
+  color: var(--ink-soft);
+}
+
+.why { margin-block-start: var(--space-4); }
+
+.specimen hr {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin-block: var(--space-5);
+}
+
+.source-bar {
+  font: 500 var(--fs-small)/1.6 var(--font-ui);
+  color: var(--ink-soft);
+}
+
+/* Verification stamp — outlined pill around "Last checked: …" (text may wrap
+   to a second line on very narrow screens; pill never overflows) */
+
+.stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  border: 1.5px solid var(--accent);
+  border-radius: var(--radius-pill);
+  padding: 4px 10px;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.stamp svg { width: 12px; height: 12px; }
+
+/* Separator discipline: the "·" before the verification stamp travels with
+   the pill as one wrap unit so it never dangles at a line end; the pill's
+   own text may still wrap to a second line on narrow screens. */
+
+.stamp-group { white-space: nowrap; }
+
+/* The pill keeps room for the "· " prefix at its own font scale, so the
+   pair still fits the text column when the pill's text wraps on narrow
+   screens (binds only below ~344px; wider caps leave the pill untouched). */
+
+.stamp-group .stamp {
+  white-space: normal;
+  max-width: calc(100% - 1em);
+}
+
+/* PF — how it works (six steps; 2-col at ≥40em; no numbers on steps) */
+
+.steps { display: grid; gap: var(--space-5); }
+
+@media (min-width: 40em) {
+  .steps { grid-template-columns: 1fr 1fr; gap: var(--space-6) var(--space-7); }
+}
+
+.step {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+
+/* PR — price (quiet, centered, no chip/card/badge) */
+
+.price-wrap { max-width: 34rem; margin-inline: auto; text-align: center; }
+
+.price-line {
+  font: 700 1.75rem/1.2 var(--font-display);
+  color: var(--ink);
+}
+
+.price-p { margin-block: 0 var(--space-5); }
+
+/* FQ — questions (static, accordion-less; em-dash at the Q/A split retained) */
+
+.faq-list { max-width: var(--measure); }
+
+.faq-item { padding-block: var(--space-4); }
+
+.faq-item + .faq-item { border-top: 1px solid var(--rule); }
+
+.faq-line { margin: 0; }
+
+.faq-q { font-weight: 600; }
+
+/* SB — signup band (the page's only saturated dark block) */
+
+.signup-band {
+  background: var(--band);
+  color: var(--band-text);
+  padding-block: var(--pad-band);
+}
+
+/* Band text tiers: the generic h2 and .lead color rules would paint ink
+   tones on the dark band, so the band's heading and invitation re-apply
+   their band tokens explicitly (heading --band-text 13.14:1, invitation
+   --band-soft 7.98:1 on --band); consent keeps --band-soft. */
+
+.signup-band h2 { color: var(--band-text); }
+
+.signup-band .lead { color: var(--band-soft); }
+
+.band-inner {
+  max-width: var(--band-form);
+  margin-inline: auto;
+  padding-inline: var(--pad-inline);
+  text-align: center;
+}
+
+.band-lead { margin-block: 0 var(--space-5); }
+
+.signup-form {
+  margin-block-start: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-3);
+  text-align: left;
+}
+
+.band-label {
+  font: 600 var(--fs-label)/1.2 var(--font-ui);
+  color: var(--band-text);
+}
+
+.signup-form input[type="email"] {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 16px;
+  border: 1px solid var(--surface);
+  border-radius: var(--radius-m);
+  background: var(--surface);
+  color: var(--ink);
+  font: 400 1rem/1.4 var(--font-ui);
+}
+
+.band-btn {
+  min-height: 52px;
+  padding: 14px 28px;
+  border: 0;
+  border-radius: var(--radius-m);
+  background: var(--band-btn);
+  color: var(--band-btn-ink);
+  font: 700 var(--fs-label)/1.2 var(--font-ui);
+  transition: background-color 160ms ease;
+}
+
+.band-btn:hover { background: var(--band-btn-hover); }
+
+.consent {
+  margin-block-start: var(--space-4);
+  font: 400 var(--fs-small)/1.5 var(--font-ui);
+  color: var(--band-soft);
+}
+
+/* Live-variant status region — created by signup.js only when a live config is
+   present; the element never exists on this local inert page. Text colors use
+   the designer's utility tokens on a --surface card (verified pairs 18/19). */
+
+.signup-status {
+  margin: 0;
+  flex: 1 0 100%;
+  background: var(--surface);
+  color: var(--ink);
+  padding: 10px 14px;
+  border-radius: var(--radius-m);
+  font: 500 var(--fs-small)/1.5 var(--font-ui);
+  text-align: left;
+}
+
+.signup-status--success { color: var(--success); }
+
+.signup-status--error { color: var(--error); }
+
+@media (min-width: 34em) {
+  .signup-form {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .band-label,
+  .consent,
+  .signup-status { flex: 1 0 100%; }
+
+  .signup-form input[type="email"] { flex: 1 1 auto; width: auto; min-width: 0; }
+
+  .band-btn { flex: 0 0 auto; }
+}
+
+/* FT — footer (nothing hidden; disclaimers are page copy, not grey fine print) */
+
+.site-footer {
+  border-top: 1px solid var(--rule);
+  padding-block: calc(var(--pad-sec) / 2);
+}
+
+.footer-mark {
+  font: 700 1rem/1.3 var(--font-display);
+  color: var(--ink);
+  margin-block: 0 var(--space-4);
+}
+
+.site-footer p {
+  font: 400 var(--fs-small)/1.6 var(--font-ui);
+  color: var(--ink-soft);
+}
+
+.site-footer p + p { margin-block-start: var(--space-4); }
+
+/* Motion: background-color hovers only — cheap insurance for reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Print (minimal pass echoing PF-05/WG-04): hide the band, hero motif and
+   page chrome; strip the dotted stage decoration; keep TL/SC/PR/FQ readable */
+
+@media print {
+  body { background: #FFFFFF; }
+
+  .site-header,
+  .skip-link,
+  .signup-band,
+  .hero-motif { display: none; }
+
+  .specimen-stage {
+    background-color: #FFFFFF;
+    background-image: none;
+    padding: 0;
+  }
+
+  .specimen { box-shadow: none; }
+}
