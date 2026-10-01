@@ -1,0 +1,1 @@
+window.__SHADOW_TRACKING_CONFIG__ = {"enabled": true, "endpoint": "https://canvaserpcanada-prod-shadow-api.victoriousdesert-5c606a5a.canadacentral.azurecontainerapps.io", "siteId": "expectant-parents-ca__20260926-131418/idea-0003", "environment": "production", "noticeVersion": "2026-10-analytics-v1"};

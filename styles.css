@@ -681,24 +681,42 @@ main:focus { outline: none; }
   color: var(--band-soft);
 }
 
-/* Live-variant status region — created by signup.js only when a live config is
-   present; the element never exists on this local inert page. Text colors use
-   the designer's utility tokens on a --surface card (verified pairs 18/19). */
-
+/* Signup status region (2026-10-01 production rollout, consented-attribution
+   session): the element now ships in the form markup and RESERVES its line —
+   the 2026-10-01 directive is that submit outcomes must never shift the page.
+   The EMPTY state is an invisible reserved box (transparent card, same
+   geometry, never display:none — the live region must stay registered with
+   assistive tech), so the inert local page shows no artifact and no message
+   can ever change the layout. State colors keep the designer's utility tokens
+   on a --surface card (verified pairs 18/19). */
 .signup-status {
   margin: 0;
   flex: 1 0 100%;
-  background: var(--surface);
+  background: transparent;
   color: var(--ink);
   padding: 10px 14px;
   border-radius: var(--radius-m);
   font: 500 var(--fs-small)/1.5 var(--font-ui);
   text-align: left;
+  min-height: calc(1.5em + 20px); /* one status line + card padding */
 }
+
+.signup-status:not(:empty) { background: var(--surface); }
 
 .signup-status--success { color: var(--success); }
 
 .signup-status--error { color: var(--error); }
+
+/* Multi-line reserves on narrow viewports: the longest wordings wrap below
+   ~48em / ~30em (measured in the rollout harness); the reserve exists in the
+   empty state too, so every submit outcome renders at zero layout shift. */
+@media (max-width: 47.99em) {
+  .signup-status { min-height: calc(3em + 20px); }
+}
+
+@media (max-width: 29.99em) {
+  .signup-status { min-height: calc(4.5em + 20px); }
+}
 
 @media (min-width: 34em) {
   .signup-form {
@@ -757,7 +775,9 @@ main:focus { outline: none; }
   .site-header,
   .skip-link,
   .signup-band,
-  .hero-motif { display: none; }
+  .hero-motif,
+  .consent-banner,
+  .footer-privacy { display: none; }
 
   .specimen-stage {
     background-color: #FFFFFF;
@@ -766,4 +786,167 @@ main:focus { outline: none; }
   }
 
   .specimen { box-shadow: none; }
+}
+
+/* ============================================================
+   Consent banner + persistent privacy control — production rollout
+   (setup scope consented-attribution__20261001-140140) on the ui-ux
+   spec consent-banner-spec__20261001-142148.md principles: normal-flow
+   non-modal region between main and footer (nothing is ever covered at
+   any viewport), native details/summary disclosure, two
+   equal-prominence ≥44px decision buttons, no dismiss-X in the unset
+   state, persistent footer control, manager mode on reopen, no
+   unsolicited focus steal. Reuses this page's tokens only — zero new
+   colors. Ships hidden in the markup; tracking.js unhides it only with
+   a live enabled tracking config (fully inert locally).
+   ============================================================ */
+
+.consent-banner {
+  padding: 0 var(--pad-inline) var(--space-6);
+}
+
+.consent-banner__inner {
+  max-width: var(--measure);
+  margin-inline: auto;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-l);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-5) var(--space-5) var(--space-4);
+}
+
+.consent-banner__inner h2 {
+  margin: 0 0 var(--space-3);
+  font: 700 1.25rem/1.3 var(--font-display);
+  color: var(--ink);
+}
+
+.consent-banner__body {
+  margin: 0 0 var(--space-4);
+  font: 400 0.95rem/1.6 var(--font-ui);
+  color: var(--ink-soft);
+  overflow-wrap: break-word;
+}
+
+.consent-banner__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-2);
+}
+
+/* Decision buttons: identical for both — equal prominence by construction
+   (the page's .btn-primary language; no filled-vs-outlined hierarchy);
+   ≥48px touch targets. */
+.consent-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 12px 24px;
+  font: 600 var(--fs-label)/1.2 var(--font-ui);
+  color: #FFFFFF;
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-m);
+  cursor: pointer;
+  transition: background-color 160ms ease;
+}
+
+.consent-btn:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+
+.consent-btn--ghost { background: transparent; color: var(--accent); }
+.consent-btn--ghost:hover { background: transparent; border-color: var(--accent); }
+
+/* Manager-mode extras */
+.consent-banner__current {
+  margin: var(--space-3) 0 var(--space-2);
+  font: 600 0.95rem/1.5 var(--font-ui);
+  color: var(--ink);
+}
+
+/* Native inline disclosure styled as a text button */
+.consent-details { margin: var(--space-2) 0 0; }
+
+.consent-details__summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: var(--space-2) 0;
+  color: var(--accent);
+  font: 600 var(--fs-label)/1.2 var(--font-ui);
+  cursor: pointer;
+  list-style: none;
+}
+
+.consent-details__summary::-webkit-details-marker { display: none; }
+.consent-details__summary::after { content: "+"; margin-left: 0.4rem; font-weight: 700; }
+.consent-details[open] .consent-details__summary::after { content: "\2212"; }
+
+.consent-details__body {
+  font: 400 var(--fs-small)/1.6 var(--font-ui);
+  color: var(--ink-soft);
+  overflow-wrap: break-word;
+}
+
+.consent-details__body p { margin: 0.75rem 0 0.25rem; }
+.consent-details__body ul { margin: 0.25rem 0; padding-left: 1.25rem; }
+.consent-details__body li { margin: 0.25rem 0; }
+
+.consent-details__heading {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* Persistent "Privacy choices" control in the footer (post-decision).
+   Layout scoped to :not([hidden]) so the UA [hidden]{display:none} can never
+   be defeated: before a choice exists, while the banner/manager surface is
+   open, and on the fully inert local page the control is invisible AND
+   unfocusable (QA F1 lesson from the staging certification, 2026-10-01). */
+.footer-privacy:not([hidden]) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-block-start: var(--space-4);
+}
+
+.footer-privacy__button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  font: 600 var(--fs-small)/1.2 var(--font-ui);
+  color: var(--accent);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-m);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.footer-privacy__state {
+  font: 400 var(--fs-small)/1.5 var(--font-ui);
+  color: var(--ink-soft);
+}
+
+/* Screen-reader-only utility (structural — not a color) */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Mobile stacking: full-width decision buttons below the page's 34em
+   band breakpoint */
+@media (max-width: 33.99em) {
+  .consent-banner__actions .consent-btn { flex: 1 1 100%; }
 }

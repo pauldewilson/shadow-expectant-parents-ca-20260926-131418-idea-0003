@@ -13,8 +13,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Dueplans — Your pregnancy deadlines, on one dated plan</title>
-<meta name="description" content="A personal, dated timeline of Ontario’s hard pregnancy deadlines — daycare waitlists, EI paperwork, ESA notice — every task with its official source. Launching Q4 2026.">
+<meta name="description" content="A personal, dated timeline of Ontario’s hard pregnancy deadlines — daycare waitlists, EI paperwork, ESA notice — every task with its official source. Launching Q1 2027.">
 <meta name="theme-color" content="#FAF8FC">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%235E2958'/%3E%3Crect x='6' y='9' width='20' height='17' rx='3' fill='%23FAF8FC'/%3E%3Cpath d='M11 5.5v5M21 5.5v5' stroke='%23FAF8FC' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M6 13h20' stroke='%235E2958' stroke-width='1.5'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="styles.css">
@@ -34,7 +35,7 @@
   <section class="hero" aria-labelledby="hero-h">
     <div class="container hero-grid">
       <div class="hero-copy">
-        <p class="badge"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="4.5" width="14" height="12.5" rx="2"/><path d="M7 2.75v3.5M13 2.75v3.5M3 8.5h14"/></svg>Launching Q4 2026</p>
+        <p class="badge"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="4.5" width="14" height="12.5" rx="2"/><path d="M7 2.75v3.5M13 2.75v3.5M3 8.5h14"/></svg>Launching Q1 2027</p>
         <h1 id="hero-h">Your pregnancy deadlines, on <span class="hl">one dated plan</span>.</h1>
         <p class="lead">Tell us your due date and your city, and we’ll build a personal timeline of the hard deadlines that can’t slip — daycare waitlists, EI paperwork, ESA notice — every task dated, every deadline sourced.</p>
         <div class="cta-row">
@@ -241,7 +242,7 @@
         <p class="faq-line"><span class="faq-q">Q: Which cities does it cover?</span><br><span class="faq-a">— A: It’s built for Ontario parents, starting with Toronto/GTA and Ottawa. Every Ontario parent gets a plan, with city-specific child care details where they exist.</span></p>
       </div>
       <div class="faq-item">
-        <p class="faq-line"><span class="faq-q">Q: When does it launch?</span><br><span class="faq-a">— A: Q4 2026. Leave your email below and you’ll hear from us the moment it’s live.</span></p>
+        <p class="faq-line"><span class="faq-q">Q: When does it launch?</span><br><span class="faq-a">— A: Q1 2027. Leave your email below and you’ll hear from us the moment it’s live.</span></p>
       </div>
       <div class="faq-item">
         <p class="faq-line"><span class="faq-q">Q: What happens to my information?</span><br><span class="faq-a">— A: Your five answers are computed in your browser — your due date and city aren’t sent anywhere. The email you leave on this page is stored only to send launch news, as described under the form.</span></p>
@@ -258,12 +259,106 @@
         <label for="email" class="band-label">Email address</label>
         <input type="email" id="email" name="email" autocomplete="email" inputmode="email" autocapitalize="none" autocorrect="off" spellcheck="false">
         <button type="button" class="band-btn">Notify me</button>
-        <p class="consent">We’ll store your email, the page you signed up on, and basic technical details (time, IP address, browser) for one purpose: sending you launch news for Dueplans. No marketing lists, no sharing.</p>
+        <!-- Signup status region (required build element, 2026-10-01 hardening):
+             ships inside the form after the input/button row; signup.js writes
+             every success/error message here. Empty state is an invisible
+             reserved line (never display:none — the live region stays
+             registered with assistive tech); local inert page shows no message. -->
+        <p class="signup-status" role="status" aria-live="polite"></p>
+        <p class="consent">When your signup request reaches us, we store the email you enter, the address of the page you signed up from, and basic technical details (time, IP, browser, browser language, and the referring page if your browser sends one) — solely to send you launch news for Dueplans and to protect the form from abuse. To do that, submissions are checked by Google reCAPTCHA Enterprise, a separate security service from Google. Visit analytics is a separate, optional choice — allowing analytics is never required to sign up.</p>
       </form>
     </div>
   </section>
 
 </main>
+
+<!-- Consent banner — production rollout (consented-attribution__20261001-140140;
+     ui-ux spec consent-banner-spec__20261001-142148.md principles applied to
+     this page's tokens; final strings S1–S3/S5 from marketing-copy
+     production-adaptation__20261001-185702.md, verbatim). Ships hidden;
+     tracking.js unhides it only after validating a live enabled
+     window.__SHADOW_TRACKING_CONFIG__ on a non-file: origin. Without that it
+     stays hidden forever: no storage, no requests, fully inert locally.
+     Normal-flow non-modal region between main and footer — never overlays the
+     signup CTA, status line or any focused element at any viewport. -->
+<aside class="consent-banner" data-consent-banner aria-labelledby="consent-banner-title" hidden>
+  <div class="consent-banner__inner">
+    <h2 id="consent-banner-title" tabindex="-1">Allow visit analytics?</h2>
+    <p class="consent-banner__body">With your permission, we use a random browser ID for up to 30 days to connect visits and signups on this site. We record campaign tags, the pages you visit and basic browser/device details, and keep detailed records for up to 90 days. You can decline and still sign up, or change your choice anytime.</p>
+
+    <div class="consent-banner__actions">
+      <button type="button" class="consent-btn" data-consent-allow>Allow analytics</button>
+      <button type="button" class="consent-btn" data-consent-decline>Decline analytics</button>
+    </div>
+
+    <!-- Manager mode only (reopened via footer "Privacy choices" after a
+         choice exists); hidden in the initial decision state. -->
+    <p class="consent-banner__current" data-consent-current hidden></p>
+    <button type="button" class="consent-btn" data-consent-toggle hidden>Turn off analytics</button>
+    <button type="button" class="consent-btn consent-btn--ghost" data-consent-close hidden>Close</button>
+
+    <!-- Native inline disclosure (no JS for the toggle). Placed last so the
+         tab order is Allow → Decline → Privacy details in decision mode and
+         turn on/off → Close → Privacy details in manager mode (ui-ux §8.3). -->
+    <details class="consent-details" data-consent-details>
+      <summary class="consent-details__summary"><span>Privacy details</span></summary>
+      <div class="consent-details__body">
+        <p class="consent-details__heading">Who is responsible</p>
+        <p>This site is run by Canvas Tech Solutions, which is responsible for the data described here.</p>
+
+        <p class="consent-details__heading">What we collect if you allow analytics</p>
+        <ul>
+          <li>Campaign tags from the page address, when present: utm_source, utm_medium, utm_campaign, utm_id, utm_content and utm_term. Other tags and ad-click IDs (like gclid or fbclid) are ignored.</li>
+          <li>The page address in a cleaned form: the site, the page path and the accepted campaign tags — not the full address with every parameter.</li>
+          <li>Basic browser/device details: device type, browser family and major version, operating-system family, a screen-size range, and your browser's main language. We don't record the raw browser identification string and we don't fingerprint your device.</li>
+          <li>A random browser ID, kept for up to 30 days: a random code stored for this site only. It's not your name, email or account — but it can be linked to a signup you make here, so it isn't anonymous.</li>
+          <li>A session ID for the current tab, which expires after 30 minutes of inactivity.</li>
+          <li>Visit records: one record per page view measured after you allow analytics, kept for up to 90 days.</li>
+        </ul>
+
+        <p class="consent-details__heading">How analytics connects to signups</p>
+        <p>If you allow analytics and later submit the launch-notification form on this site, your visit can be connected to that signup, so we can see which campaign brought you here. If you decline or haven't chosen, signing up works exactly the same — we just store the page address without campaign tags, and no visit connection is made. Allowing analytics is never required to sign up.</p>
+
+        <p class="consent-details__heading">Service providers</p>
+        <ul>
+          <li>This site's pages are hosted by GitHub Pages (GitHub, Inc.).</li>
+          <li>Signup and analytics records are stored in a PostgreSQL database hosted in Ontario, on Microsoft Azure. Other parts of the service — such as backups or support — may involve processing outside Ontario.</li>
+          <li>The launch-notification form is protected by Google reCAPTCHA Enterprise, a separate security service from Google that checks submissions for abuse. It runs whether or not you allow analytics; declining analytics doesn't turn it off.</li>
+        </ul>
+
+        <p class="consent-details__heading">Why we use this data</p>
+        <ul>
+          <li>To measure which campaigns bring visits and launch-notification signups on this site.</li>
+          <li>To spot coarse browser and device compatibility issues.</li>
+        </ul>
+
+        <p class="consent-details__heading">What we don't do</p>
+        <ul>
+          <li>No advertising trackers or ad pixels.</li>
+          <li>No cross-site identity — your browser ID works on this site only.</li>
+          <li>No joining analytics data to your email address.</li>
+          <li>No fingerprinting.</li>
+          <li>No full IP address in analytics records. Like any website, this site's ordinary hosting and security do receive standard network details such as your IP address — that's separate from the optional analytics choice.</li>
+          <li>If you decline: we store only your choice and its date on your browser — no browser ID, no visit records.</li>
+        </ul>
+
+        <p class="consent-details__heading">How long we keep it</p>
+        <ul>
+          <li>Random browser ID: up to 30 days.</li>
+          <li>Detailed visit records and signup links: up to 90 days.</li>
+          <li>Your privacy choice itself: up to 180 days, or until we make a material change to this notice.</li>
+          <li>Summary counts without browser IDs (for example, visits per campaign per day): up to 13 months.</li>
+        </ul>
+
+        <p class="consent-details__heading">Changing your choice</p>
+        <p>Select 'Privacy choices' anytime. Declining or withdrawing stops collection immediately, clears the browser ID and discards any not-yet-sent visits. Records already made are kept until their normal expiry (above) unless you ask us to delete them.</p>
+
+        <p class="consent-details__heading">Access and deletion</p>
+        <p>You can ask what data is connected to your browser ID, or have it deleted, by contacting the site owner (Canvas Tech Solutions). Because a browser ID alone doesn't prove who you are, we use a basic verification step before sharing or deleting anything.</p>
+      </div>
+    </details>
+  </div>
+</aside>
 
 <!-- FT — footer -->
 <footer class="site-footer" role="contentinfo">
@@ -272,11 +367,23 @@
     <p class="footer-sources">Sources: Ontario Ministry of Labour — ESA guide (updated July 8, 2024) · City of Toronto — TELCCS registration (September 23, 2025) · Statistics Canada (released October 21, 2025) · Service Canada — canada.ca EI and CCB pages (as of September 26, 2026) · ontario.ca — Midwifery in Ontario (updated January 22, 2026); Register a birth (updated January 14, 2026)</p>
     <p class="footer-note">Dueplans is an independent planning tool for Ontario parents. It is not affiliated with, endorsed by, or operated by any government, health authority or professional association.</p>
     <p class="footer-note">Not medical advice. The plan covers logistics only — your own health care provider guides your care.</p>
-    <p class="footer-legal">Launching Q4 2026 · © 2026 Dueplans · All official rules live on the government pages cited throughout this site.</p>
+    <p class="footer-legal">Launching Q1 2027 · © 2026 Dueplans · All official rules live on the government pages cited throughout this site.</p>
+    <!-- Persistent post-decision privacy control: hidden until a choice exists
+         and while the banner/manager surface is open (tracking.js toggles it);
+         on the inert local page it never appears. -->
+    <p class="footer-privacy" data-footer-privacy hidden>
+      <button type="button" class="footer-privacy__button" data-consent-reopen>Privacy choices</button>
+      <span class="footer-privacy__state" data-consent-state></span>
+    </p>
+    <!-- Live region for consent state feedback (screen readers); describes the
+         stored preference only, never claims measurement success. -->
+    <p class="visually-hidden" role="status" data-consent-status></p>
   </div>
 </footer>
 
 <script src="signup.js" defer></script>
 <script src="signup-config.js" defer></script>
+<script src="tracking-config.js" defer></script>
+<script src="tracking.js" defer></script>
 </body>
 </html>

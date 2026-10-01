@@ -1,7 +1,11 @@
 /*
  * signup.js — config-gated signup form handler for the Dueplans local page
- * (idea-0003, session expectant-parents-ca__20260926-131418).
- * Normative contract: docs/backend-architecture.md §12 (frontend) + §7 (API).
+ * (idea-0003, session expectant-parents-ca__20260926-131418; production
+ * rollout of the consented-analytics revision, session
+ * consented-attribution__20261001-140140).
+ * Normative contract: docs/backend-architecture.md §12 (frontend) + §7 (API);
+ * analytics additions per the frozen backend contract
+ * (backend-contract__20261001-142148.md §1.7) and plan §10.5/§10.10.
  *
  * Two-state contract:
  *  - Local engineering pages ship a comment-only signup-config.js stub, so
@@ -13,18 +17,31 @@
  *    collect ALL form fields, optionally run reCAPTCHA Enterprise, and POST
  *    once to config.backendUrl + /api/v1/signups.
  *
- * Status messaging (2026-09-26 user direction): the live submit path maps
- * every backend rejection to a DISTINCT plain-language message rendered in a
- * role="status" region (created only when a live config exists):
- *   200 → success (config.successMessage when provided; fallback below)
- *   422 → specific "Please check the form" wording naming what to fix — the
- *         backend's per-field detail is parsed when parseable (e.g. email);
- *         never the generic fallback
- *   429 → rate-limit wording; 400 → captcha wording; captcha/network failure
- *         → its own retry wording; 500/unknown → plain retry wording.
+ * Analytics context (consent-aware clients): when tracking.js is present it
+ * exposes window.__SHADOW_ATTRIBUTION__; this handler asks it for the current
+ * permitted context and adds the additive top-level `analytics` object
+ * (consent_state + identifiers only when accepted). signup.js NEVER depends
+ * on tracking.js loading or succeeding: absent/blocked/failed tracking falls
+ * back to consent_state "unknown" with a minimized origin+path source_url,
+ * exactly the frozen refusal/unknown posture. When tracking.js is present,
+ * source_url is its sanitized URL (approved campaign params kept when
+ * accepted) or origin+path only otherwise.
  *
- * Never: cookies, localStorage/sessionStorage, analytics, or any request other
- * than the reCAPTCHA loader (live + captchaRequired only) and the signup POST.
+ * Post-submit states (2026-09-26 messaging directive + 2026-10-01 success
+ * directive): 200 → status shows exactly "You're on the list" (the deploy
+ * config's successMessage, when ever set, must equal the exact string) and
+ * the email input and submit button are DISABLED — never removed or hidden —
+ * so the layout never shifts (the status region reserves its line). Failures
+ * keep the form enabled for retry with distinct messages per failure kind;
+ * 422 names what to check (never the generic wording). This page keeps its
+ * certified finer-grained set: captcha REJECTED (400) and captcha
+ * UNAVAILABLE (loader/execute failure) are two distinct wordings, per the
+ * per-page mapping in marketing-copy production-adaptation__20261001-185702.md.
+ *
+ * Never: cookies, localStorage/sessionStorage, analytics of its own, or any
+ * request other than the reCAPTCHA loader (live + captchaRequired only) and
+ * the signup POST. (Storage used by consent analytics lives in tracking.js,
+ * which never runs without its own live config.)
  */
 (function () {
   'use strict';
@@ -32,12 +49,14 @@
   var inflight = new WeakSet(); // per-form single-flight guard
   var sessionId = null; // generated lazily, once per page load
   var recaptchaPromise = null; // module-level guard: loader injected at most once
+  var ANALYTICS_STATES = ['accepted', 'declined', 'unknown', 'withdrawn'];
 
   /* Status wording — distinct per failure kind; no generic-only message.
      These are live-path status strings, not page copy: the local inert page
-     renders none of them (no config → no status element → no message). */
+     renders none of them (no config → no message). Per-page set preserved
+     from the certified Dueplans handler (production-adaptation report §5). */
   var MESSAGES = {
-    successFallback: 'Thanks — you’re signed up for launch news.',
+    successFallback: "You're on the list",
     invalid422Email: 'Please check the form — enter a valid email address.',
     invalid422Form: 'Please check the form — make sure your entries are valid, then try again.',
     rateLimited: 'Too many attempts — please wait a minute and try again.',
@@ -46,6 +65,12 @@
     network: 'We couldn’t reach the server — check your connection and try again.',
     server: 'That didn’t go through — please try again.'
   };
+
+  /* Unreachable from this form (email is the only named field) — implemented
+     for completeness per the adaptation report ("fine either way"). */
+  function invalid422Field(field) {
+    return 'Please check the form — the "' + field + '" entry needs correcting.';
+  }
 
   /* Returns the live config, or null when absent/malformed (→ inert page). */
   function getConfig() {
@@ -134,7 +159,90 @@
     return value || null;
   }
 
-  /* Status region — created on demand, live path only; never exists locally. */
+  /* ---------------------------------------------------------------------
+     Consent-aware analytics context (frozen backend contract §1.7).
+     Default posture when tracking.js is absent/blocked/failed: consent_state
+     "unknown" and a minimized source_url (origin + path only — query string
+     and fragment stripped per plan §8/§10.10). Every access to the tracking
+     interface is guarded so this handler can never throw because of it. */
+  function defaultSourceUrl() {
+    try {
+      return window.location.origin + window.location.pathname;
+    } catch (err) {
+      return '';
+    }
+  }
+
+  function getAnalyticsContext() {
+    var ctx = {
+      state: 'unknown',
+      consentVersion: null,
+      receipt: null,
+      visitorId: null,
+      sessionId: null,
+      visitId: null,
+      sourceUrl: defaultSourceUrl()
+    };
+    var api = window.__SHADOW_ATTRIBUTION__; // undefined locally → default posture
+    if (!api || typeof api.getSignupContext !== 'function') return ctx;
+    var provided;
+    try {
+      provided = api.getSignupContext();
+    } catch (err) {
+      return ctx; // tracking.js failed mid-call → honest unknown context
+    }
+    if (!provided || typeof provided !== 'object' || !provided.available) return ctx;
+    if (ANALYTICS_STATES.indexOf(provided.state) === -1) return ctx;
+    ctx.state = provided.state;
+    if (typeof provided.sourceUrl === 'string' && provided.sourceUrl) {
+      ctx.sourceUrl = provided.sourceUrl; // tracking.js already sanitizes (contract §1.6)
+    }
+    if (ctx.state !== 'accepted') return ctx; // identifiers MUST stay absent otherwise
+
+    if (typeof provided.receipt !== 'string' || !provided.receipt ||
+        typeof provided.visitorId !== 'string' || !provided.visitorId) {
+      // Accepted locally but no coherent context (e.g. receipt mint failed):
+      // never send accepted-without-receipt (the server would 422) — report
+      // the honest usable state, "unknown", with the minimized URL.
+      ctx.state = 'unknown';
+      ctx.sourceUrl = defaultSourceUrl();
+      return ctx;
+    }
+    ctx.consentVersion = typeof provided.consentVersion === 'string' ? provided.consentVersion : null;
+    ctx.receipt = provided.receipt;
+    ctx.visitorId = provided.visitorId;
+    ctx.sessionId = typeof provided.sessionId === 'string' ? provided.sessionId : null;
+    ctx.visitId = typeof provided.visitId === 'string' ? provided.visitId : null;
+    return ctx;
+  }
+
+  function buildAnalyticsObject(ctx) {
+    var analytics = { consent_state: ctx.state };
+    if (ctx.state === 'accepted') {
+      if (ctx.consentVersion) analytics.consent_version = ctx.consentVersion;
+      analytics.receipt = ctx.receipt; // required iff accepted (contract §1.7)
+      analytics.visitor_id = ctx.visitorId;
+      if (ctx.sessionId) analytics.session_id = ctx.sessionId;
+      if (ctx.visitId) analytics.visit_id = ctx.visitId;
+    }
+    return analytics;
+  }
+
+  /* Signup submission carrying analytics context = session activity (frozen
+     contract §1.13). Best-effort local timestamp touch; never blocks signup. */
+  function noteSignupActivity(ctx) {
+    if (ctx.state !== 'accepted') return;
+    try {
+      var api = window.__SHADOW_ATTRIBUTION__;
+      if (api && typeof api.noteSignupActivity === 'function') api.noteSignupActivity();
+    } catch (err) { /* best effort */ }
+  }
+
+  /* --------------------------------------------------------------------- */
+
+  /* Status region — ships in the form markup (reserved line inside
+     <form data-signup>); created on demand only as a defensive fallback if a
+     deploy variant were ever served without it (never silently no-op). */
   function ensureStatus(form) {
     var status = form.querySelector('[role="status"]');
     if (status) return status;
@@ -157,7 +265,17 @@
     statusEl.classList.toggle('signup-status--success', kind === 'success');
   }
 
-  function setBusy(form, buttons, busy) {
+  /* Success state (2026-10-01 user directive): disable — never remove or hide —
+     the email input and the submit button. The `disabled` attribute changes no
+     box geometry, so the layout never shifts; the status region keeps its
+     reserved line. */
+  function lockFormFields(form) {
+    Array.prototype.forEach.call(form.querySelectorAll('input, button'), function (el) {
+      el.disabled = true;
+    });
+  }
+
+  function setBusy(form, buttons, busy, succeeded) {
     if (busy) {
       inflight.add(form);
       form.setAttribute('aria-busy', 'true');
@@ -165,9 +283,12 @@
     } else {
       inflight.delete(form);
       form.removeAttribute('aria-busy');
-      // Re-enable even on success: the backend is a fact table — repeated
-      // submissions are expected and stored as separate rows (§6).
-      Array.prototype.forEach.call(buttons, function (b) { b.disabled = false; });
+      if (succeeded) {
+        lockFormFields(form);
+      } else {
+        // Failure keeps the form enabled for retry (honest error shown).
+        Array.prototype.forEach.call(buttons, function (b) { b.disabled = false; });
+      }
     }
   }
 
@@ -213,16 +334,26 @@
     });
   }
 
-  /* 422 → prefer the backend's per-field detail for the offending field;
-     fall back to the specific form-level wording (never the generic one). */
+  /* 422 → prefer the backend's per-field detail (detail[].loc) for the
+     offending field; fall back to the specific form-level wording (never the
+     generic one). The backend's captcha_token 422 case maps to this page's
+     captcha-rejected wording (per-page mapping, adaptation report §5). */
   function describe422(payload) {
     var detail = payload && payload.detail;
     if (Array.isArray(detail)) {
       for (var i = 0; i < detail.length; i++) {
         var entry = detail[i];
         var loc = entry && entry.loc;
-        if (Array.isArray(loc) && loc.indexOf('email') !== -1) {
+        if (!Array.isArray(loc) || loc.length < 2) continue;
+        if (loc.indexOf('email') !== -1) {
           return MESSAGES.invalid422Email;
+        }
+        var field = String(loc[loc.length - 1]);
+        if (field === 'captcha_token') {
+          return MESSAGES.captchaRejected;
+        }
+        if (loc[0] === 'body' && field) {
+          return invalid422Field(field);
         }
       }
     }
@@ -240,25 +371,31 @@
     if (!config) return; // inert: no live config → do nothing, forever
     if (inflight.has(form)) return; // single-flight
 
-    var status = ensureStatus(form); // created only on the live path
+    var status = ensureStatus(form); // ships in markup; creation is only a fallback
     var buttons = form.querySelectorAll('button');
     setBusy(form, buttons, true);
 
+    var succeeded = false;
     try {
       var formData = collectFormData(form);
+      var analytics = getAnalyticsContext();
       var body = {
         source: config.source,
-        source_url: window.location.href,
+        // Sanitized when analytics is accepted; origin+path only otherwise
+        // (declined/unknown/withdrawn — frozen contract §1.7 + plan §8).
+        source_url: analytics.sourceUrl,
         session_id: ensureSessionId(),
         consent_version: config.consentVersion,
         form_data: formData
       };
       var email = extractEmail(form, formData);
       if (email) body.email = email; // key omitted entirely when empty
+      body.analytics = buildAnalyticsObject(analytics);
 
       if (config.captchaRequired) {
         body.captcha_token = await getRecaptchaToken(config); // throws → no POST
       }
+      noteSignupActivity(analytics);
 
       var response = await fetch(config.backendUrl.replace(/\/+$/, '') + '/api/v1/signups', {
         method: 'POST',
@@ -268,6 +405,7 @@
 
       if (response.status === 200) {
         setStatus(status, successMessage(config), 'success');
+        succeeded = true;
       } else if (response.status === 422) {
         var payload = null;
         try { payload = await response.json(); } catch (e) { payload = null; }
@@ -283,12 +421,17 @@
         setStatus(status, custom || MESSAGES.server, 'error');
       }
     } catch (err) {
-      // captcha failure or network error — error text; controls re-enabled in finally
-      setStatus(status, err && err.captcha
-        ? MESSAGES.captchaUnavailable
-        : MESSAGES.network, 'error');
+      // captcha failure and network failure are two DISTINCT states on this
+      // page (certified Dueplans wording set, adaptation report §5).
+      if (err && err.captcha) {
+        setStatus(status, MESSAGES.captchaUnavailable, 'error');
+      } else if (err && err.name === 'TypeError') {
+        setStatus(status, MESSAGES.network, 'error');
+      } else {
+        setStatus(status, MESSAGES.server, 'error');
+      }
     } finally {
-      setBusy(form, buttons, false);
+      setBusy(form, buttons, false, succeeded);
     }
   }
 
