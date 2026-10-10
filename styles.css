@@ -854,6 +854,20 @@ main:focus { outline: none; }
   margin: 0 0 var(--space-2);
 }
 
+/* Pre-choice count disclosure (ads-funnel-fix__20261010-014500): small muted
+   line under the Allow/Decline row — the anonymous landing-count notice,
+   visible only in the decision state (tracking.js hides it in manager mode,
+   where the visitor has already answered and the sentence's "until you
+   answer" frame no longer applies). Reuses the banner body's muted token
+   (zero new colors) one size below the body text (--fs-small, this page's
+   0.875rem step). */
+.consent-banner__note {
+  margin: 0;
+  font: 400 var(--fs-small)/1.45 var(--font-ui);
+  color: var(--ink-soft);
+  overflow-wrap: break-word;
+}
+
 /* Decision buttons: identical for both — equal prominence by construction
    (the page's .btn-primary language; no filled-vs-outlined hierarchy);
    ≥48px touch targets. */
