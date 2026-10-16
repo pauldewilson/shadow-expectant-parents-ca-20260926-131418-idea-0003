@@ -68,6 +68,11 @@
   --radius-l: 14px;
   --radius-pill: 999px;
   --shadow-card: 0 2px 6px rgba(46, 34, 66, 0.08);
+  /* r2 C3/C1 fleet-conversion__20261016-120445: constant viewport-bottom
+     reserve while the sticky-bar era is active (<64em); overridden to 140px
+     at phone widths inside the shared r-block after the print block
+     (battery amendment 2 — measured wrapped-label ceiling, see there). */
+  --strip-reserve: 104px;
 }
 
 /* Base */
@@ -789,25 +794,96 @@ main:focus { outline: none; }
 }
 
 /* ============================================================
-   Consent banner + persistent privacy control — sticky overlay
-   revision (consent-banner-sticky__20261002-145950; the 2026-10-02
-   user directive supersedes the 2026-10-01 normal-flow placement,
-   every other ui-ux spec consent-banner-spec__20261001-142148.md
-   §4–§8 rule is kept): fixed bottom overlay with cookie-banner
-   behavior — pops up pinned to the viewport bottom until a choice
-   is made; non-modal (page stays scrollable/usable, no focus trap
-   in decision/manager modes). The wrapper spans the viewport
-   bottom but is click-through (pointer-events: none); only the
-   card takes pointer events, so the page behind the padding zones
-   stays interactive. Native details/summary disclosure, two
-   equal-prominence ≥48px decision buttons, no dismiss-X in the
-   unset state, persistent footer control, manager mode on reopen,
-   no unsolicited focus steal. Reuses this page's tokens only —
-   zero new colors (the overlay shadow is the page's ink token
-   #2E2242 at alpha, the same rgb the --shadow-card token derives
-   from). Ships hidden in the markup; tracking.js unhides it only
-   with a live enabled tracking config (fully inert locally).
+   r2 C3: sticky mobile/tablet CTA bar (<64em) — shared revision block
+   (fleet-conversion__20261016-120445). CSS-only; the anchor reuses the
+   certified .btn-primary class. Inserted after the certified print block
+   and before the consent block per the build spec §8.5 cascade placement.
    ============================================================ */
+
+.sticky-cta {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;                      /* under consent's 60; badge (UA z-index) above both */
+  display: none;                    /* mobile-first: shown only below 64em */
+  background: var(--surface);
+  border-top: 1px solid var(--rule);
+  box-shadow: var(--shadow-card);   /* orchestrator-approved reuse */
+  padding: 8px 96px calc(8px + env(safe-area-inset-bottom)) 12px;   /* right 96px = 12px groove + 84px badge lane */
+}
+
+@media (max-width: 63.99em) {
+  .sticky-cta { display: block; }
+}
+
+.sticky-cta .btn-primary { width: 100%; }   /* content lane; label centered like the page's only other primary CTA */
+
+@media print {
+  .sticky-cta { display: none; }
+}
+
+/* r2 C3/C1: constant viewport-bottom reserve while the sticky-bar era is
+   active (<64em); taller at phone widths to cover the consent strip's
+   wrapped-question collapse (~123px). Constant across consent states —
+   never class-flipped. env() terms inert today (no viewport-fit=cover). */
+@media (max-width: 63.99em) {
+  body { padding-bottom: calc(var(--strip-reserve) + env(safe-area-inset-bottom)); }
+  html { scroll-padding-bottom: calc(var(--strip-reserve) + env(safe-area-inset-bottom)); }
+  .signup-band { padding-block-end: calc(var(--pad-band) + var(--strip-reserve) + env(safe-area-inset-bottom)); }
+}
+
+@media (max-width: 33.99em) {
+  /* Battery amendment 2 (fleet-conversion__20261016-120445, 2026-10-16):
+     124px → 140px. The spec's tier estimated the wrapped-question ceiling
+     at ~123px using 14px-class label metrics; the certified renderer
+     measures the 15px/600 labels at 112.6/126.8px, so below ICB 384px
+     the equal-flex button labels wrap (58px buttons) and the tallest
+     collapsed strip measures 137px (12 + 42 two-line question + 12 + 58
+     two-line button + 12 + 1px border). The designer's binding invariant
+     — reserve ≥ tallest collapsed overlay incl. the wrap ceiling —
+     requires ≥137px; 140px carries 3px air. Base tier 104px unchanged
+     (strip measures 103px at ≥34em where everything is single-line). */
+  :root { --strip-reserve: 140px; }
+}
+
+/* ---------- r2 C4: mid-page anchors (secondary outline rank) ---------- */
+.cta-anchor-row { margin: var(--space-6) 0 0; }   /* 32px after the section's last block */
+
+.anchor-cta {
+  display: inline-block;
+  min-height: 48px;
+  padding: 12px 24px;
+  background: transparent;
+  border: 1.5px solid var(--accent);
+  border-radius: var(--radius-m);
+  color: var(--accent);
+  font: 600 var(--fs-label)/1.2 var(--font-ui);
+  text-decoration: none;
+}
+
+.anchor-cta:hover {
+  background: var(--wash);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* ============================================================
+   Consent strip/chip — fleet-conversion__20261016-120445 compact restyle.
+   Replaces the certified consent block IN FULL. Same selectors, data-consent-*
+   hooks and JS contract as the certified block (tracking.js byte-untouched);
+   geometry per the fleet-pass art direction. Tokens only — zero new colors.
+   Wrapper stays click-through (pointer-events: none); only the interaction
+   surface takes pointer events. The aside's [hidden] attribute remains the
+   consent state machine — never set an author display rule on
+   .consent-banner itself.
+   ============================================================ */
+
+/* Single-occupant strip: while the consent surface is open (decision or
+   manager mode — the [hidden] attribute is the state), the sticky CTA bar
+   stands down. CSS-only; no JS. :has()-less engines degrade to a transient
+   stacked strip pre-choice (recorded, accepted). */
+body:has(.consent-banner:not([hidden])) .sticky-cta { display: none; }
 
 .consent-banner {
   position: fixed;
@@ -815,126 +891,156 @@ main:focus { outline: none; }
   right: 0;
   bottom: 0;
   z-index: 60;
-  padding: 0 var(--pad-inline) var(--space-4);
+  padding: 0;
   pointer-events: none;
 }
 
 .consent-banner__inner {
   pointer-events: auto;
-  max-width: var(--measure);
-  margin-inline: auto;
+  max-width: none;
   background: var(--surface);
-  border: 1px solid var(--rule);
-  border-radius: var(--radius-l);
-  box-shadow: 0 12px 32px rgba(46, 34, 66, 0.2), 0 2px 8px rgba(46, 34, 66, 0.12);
-  padding: var(--space-5) var(--space-5) var(--space-4);
-  /* A fixed card must never overflow the top of the viewport: capped height
-     with internal scroll when the details expand inline. */
-  max-height: calc(100vh - 2.5rem);
+  border-top: 1px solid var(--rule);
+  box-shadow: var(--shadow-card);   /* orchestrator-approved reuse (direction §5.2) */
+  /* Collapsed strip = 12 + 22 + 12 + 44 + 12 = 102px (+inset). The right
+     84px padding is the reCAPTCHA badge lane (frozen live badge rect:
+     ~70×60 visible flush right, bottom edge 14px up ⇒ a ~70×74 corner
+     zone) — no control or required text renders in that column. */
+  padding: 12px 84px calc(12px + env(safe-area-inset-bottom)) 16px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "head details"
+    "actions actions";
+  column-gap: 12px;
+  row-gap: 12px;
+  max-height: 40vh;                 /* inline-expansion cap on the strip form */
   overflow-y: auto;
 }
 
 .consent-banner__inner h2 {
-  margin: 0 0 var(--space-3);
-  font: 700 1.25rem/1.3 var(--font-display);
-  color: var(--ink);
-}
-
-.consent-banner__body {
-  margin: 0 0 var(--space-4);
-  font: 400 0.95rem/1.6 var(--font-ui);
-  color: var(--ink-soft);
-  overflow-wrap: break-word;
-}
-
-.consent-banner__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-  margin: 0 0 var(--space-2);
-}
-
-/* Pre-choice count disclosure (ads-funnel-fix__20261010-014500): small muted
-   line under the Allow/Decline row — the anonymous landing-count notice,
-   visible only in the decision state (tracking.js hides it in manager mode,
-   where the visitor has already answered and the sentence's "until you
-   answer" frame no longer applies). Reuses the banner body's muted token
-   (zero new colors) one size below the body text (--fs-small, this page's
-   0.875rem step). */
-.consent-banner__note {
+  grid-area: head;
+  align-self: center;
   margin: 0;
-  font: 400 var(--fs-small)/1.45 var(--font-ui);
-  color: var(--ink-soft);
-  overflow-wrap: break-word;
-}
-
-/* Decision buttons: identical for both — equal prominence by construction
-   (the page's .btn-primary language; no filled-vs-outlined hierarchy);
-   ≥48px touch targets. */
-.consent-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  padding: 12px 24px;
-  font: 600 var(--fs-label)/1.2 var(--font-ui);
-  color: #FFFFFF;
-  background: var(--accent);
-  border: 1px solid var(--accent);
-  border-radius: var(--radius-m);
-  cursor: pointer;
-  transition: background-color 160ms ease;
-}
-
-/* Hidden-state guard (RC-1, live-rollout verification 2026-10-01): the author
-   inline-flex above must never defeat the UA [hidden]{display:none} — decision
-   mode keeps Turn off analytics/Close out of the render and tab order, manager
-   mode keeps Allow/Decline out (tracking.js sets hidden on both pairs).
-   display:none = invisible AND unfocusable. Same lesson as .footer-privacy
-   below (staging QA F1). Specificity (0,2,0) beats the rules above; no
-   !important needed. */
-.consent-btn[hidden] { display: none; }
-
-.consent-btn:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
-
-.consent-btn--ghost { background: transparent; color: var(--accent); }
-.consent-btn--ghost:hover { background: transparent; border-color: var(--accent); }
-
-/* Manager-mode extras */
-.consent-banner__current {
-  margin: var(--space-3) 0 var(--space-2);
-  font: 600 0.95rem/1.5 var(--font-ui);
+  font: 600 var(--fs-label)/1.4 var(--font-ui);
   color: var(--ink);
 }
 
-/* Native inline disclosure styled as a text button */
-.consent-details { margin: var(--space-2) 0 0; }
+/* "Privacy details" — the existing affordance, placed into visual row 1 by
+   grid areas (DOM order and the certified tab order unchanged). The
+   negative margins keep row 1 at ~22px while the summary keeps its full
+   44px hit area; 12px row-gap ≥ the 11px poke into the actions row. */
+.consent-banner .consent-details {
+  grid-area: details;
+  justify-self: end;
+  align-self: center;
+  margin: -11px 0;
+  min-width: 44px;
+}
 
 .consent-details__summary {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
-  padding: var(--space-2) 0;
+  padding: 0 2px;
   color: var(--accent);
   font: 600 var(--fs-label)/1.2 var(--font-ui);
   cursor: pointer;
   list-style: none;
 }
 
+/* Color never the sole affordance on the strip (designer-mandated underline) */
+.consent-details__summary span {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .consent-details__summary::-webkit-details-marker { display: none; }
+
+/* Certified furniture, byte-identical content rules */
 .consent-details__summary::after { content: "+"; margin-left: 0.4rem; font-weight: 700; }
 .consent-details[open] .consent-details__summary::after { content: "\2212"; }
 
+.consent-details__summary:hover { color: var(--accent-hover); }
+
+.consent-banner__actions {
+  grid-area: actions;
+  margin: 0;
+  display: flex;
+  flex-direction: row-reverse;  /* visual: Decline left, Allow right; DOM/tab order keeps Allow-first */
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.consent-banner__actions .consent-btn { flex: 1 1 0; min-width: 0; }
+
+/* Manager-mode extras flow as full-width implicit grid rows below row 2
+   (they end at the content edge — left of the 84px badge lane). */
+.consent-banner__inner > *:not(h2):not(.consent-banner__actions):not(.consent-details) { grid-column: 1 / -1; }
+
+/* Decision buttons: Allow = certified accent fill; Decline = secondary
+   outline rank. Equal size — hierarchy by fill + weight only, no
+   dark-pattern shrink. 44px min-height (dispatch-mandated; sticky bar and
+   anchors keep the 48px standard). */
+.consent-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  /* Battery amendment 1 (fleet-conversion__20261016-120445, 2026-10-16,
+     docuplow-r4 amendment-1 lesson): side padding 16px → 6px. With the
+     84px badge lane, equal-flex boxes measure (ICB−100)/2; the 15px/600
+     labels measure 112.6px ("Allow analytics") / 126.8px ("Decline
+     analytics") in the certified renderer — at 16px side padding the
+     single-line threshold is ICB ≥ 402px, at 6px it is ICB ≥ 384px, so
+     real 390-class devices keep the spec's single-line 44px row.
+     Below ICB 384 the labels wrap inside their ≥44px buttons (58px
+     measured) — the wrapped case is covered by the reserve amendment
+     inside the ≤33.99em block below. Vertical 10px + 44px floor are the
+     spec values, unchanged. */
+  padding: 10px 6px;
+  font: 600 var(--fs-label)/1.2 var(--font-ui);
+  color: #FFFFFF;
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-m);
+  cursor: pointer;
+}
+
+.consent-btn[hidden] { display: none; }   /* certified RC-1 guard — carried verbatim */
+
+.consent-btn:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+
+.consent-banner__actions .consent-btn[data-consent-decline] {
+  background: var(--surface);
+  color: var(--ink-soft);
+  border: 1.5px solid var(--ink-soft);
+}
+
+.consent-banner__actions .consent-btn[data-consent-decline]:hover {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--ink);
+}
+
+.consent-btn--ghost { background: transparent; color: var(--accent); }
+.consent-btn--ghost:hover { background: transparent; border-color: var(--accent); }
+
+/* Manager-mode extras keep their certified styles (selectors unchanged) */
+.consent-banner__current {
+  margin: var(--space-3) 0 var(--space-2);
+  font: 600 0.95rem/1.5 var(--font-ui);
+  color: var(--ink);
+}
+
+/* Native inline disclosure — body styles carried over unchanged */
 .consent-details__body {
   font: 400 var(--fs-small)/1.6 var(--font-ui);
   color: var(--ink-soft);
   overflow-wrap: break-word;
 }
 
-/* Fullscreen-panel Close control (first child of the details body). Lives in
-   the fullscreen panel on compact viewports only; hidden on the desktop
-   inline disclosure. The button itself never receives the hidden attribute,
-   so the display:none base is safe. */
+/* Fullscreen-panel Close control (first child of the details body) — the
+   display contract is load-bearing JS input (isFullscreenPanelMode). */
 .consent-details__close { display: none; }
 
 .consent-details__body p { margin: 0.75rem 0 0.25rem; }
@@ -946,11 +1052,24 @@ main:focus { outline: none; }
   color: var(--ink);
 }
 
-/* Persistent "Privacy choices" control in the footer (post-decision).
-   Layout scoped to :not([hidden]) so the UA [hidden]{display:none} can never
-   be defeated: before a choice exists, while the banner/manager surface is
-   open, and on the fully inert local page the control is invisible AND
-   unfocusable (QA F1 lesson from the staging certification, 2026-10-01). */
+/* Relocated paragraphs: the permission summary and the anonymous-count note
+   now open the disclosure body (after the Close button). Strings
+   byte-identical; classes and hooks kept. */
+.consent-details__body .consent-banner__body {
+  margin: 0.5rem 0 0.75rem;
+  font: 400 0.95rem/1.6 var(--font-ui);
+  color: var(--ink-soft);
+  overflow-wrap: break-word;
+}
+
+.consent-details__body .consent-banner__note {
+  margin: 0 0 0.25rem;
+  font: 400 var(--fs-small)/1.45 var(--font-ui);
+  color: var(--ink-soft);
+  overflow-wrap: break-word;
+}
+
+/* Persistent "Privacy choices" control in the footer — unchanged certified rules */
 .footer-privacy:not([hidden]) {
   display: flex;
   flex-wrap: wrap;
@@ -979,7 +1098,7 @@ main:focus { outline: none; }
   color: var(--ink-soft);
 }
 
-/* Screen-reader-only utility (structural — not a color) */
+/* Screen-reader-only utility (structural — carried over unchanged) */
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -993,57 +1112,31 @@ main:focus { outline: none; }
   border: 0;
 }
 
-/* Mobile compact mode (≤33.99em, this page's banner breakpoint): a very
-   small bottom bar — heading + Allow/Decline + the collapsed "Privacy
-   details" trigger. The body paragraph is CSS-hidden here; the fullscreen
-   details panel below carries every fact it contains. Buttons keep ≥48px
-   touch targets and identical (equal-prominence) styling; they sit side by
-   side and wrap to stacked full-width rows exactly when the labels don't
-   fit (the superseded §4.2 stacked-full-row rule lives on as that
-   fallback). The bar floats 5rem above the viewport bottom, reserving a
-   strip where the live reCAPTCHA Enterprise badge (fixed bottom-right,
-   ~256×60, injected by the certified loader in signup.js after a submit
-   attempt) sits on live pages — so no banner control is ever covered or
-   click-blocked by it at 320/390 (harness-measured); the centered desktop
-   card never reaches that zone. */
-@media (max-width: 33.99em) {
-  .consent-banner { padding: 0 var(--space-3) 5rem; }
-
+/* Desktop chip (≥62em): same two-row content, bottom-right, RAISED above
+   the badge zone (bottom ≥ 88px > the ~74px corner zone) so chip ∩ badge = ∅
+   by construction; no badge lane needed inside the chip. */
+@media (min-width: 62em) {
   .consent-banner__inner {
-    padding: var(--space-3) var(--space-3) var(--space-2);
-    max-height: calc(100vh - 6.5rem);
+    max-width: 420px;
+    margin: 0 24px 88px auto;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-l);
+    padding: 16px;
+    max-height: calc(100vh - 2.5rem);   /* certified desktop cap kept */
   }
 
-  .consent-banner__inner h2 {
-    margin: 0 0 var(--space-2);
-    font: 700 1.0625rem/1.3 var(--font-display);
-  }
+  .consent-banner__actions { justify-content: flex-start; }   /* right-packed under row-reverse: Decline left of Allow */
+  .consent-banner__actions .consent-btn { flex: 0 1 auto; padding: 10px 20px; }
+}
 
-  .consent-banner__body { display: none; }
-
-  .consent-banner__actions {
-    gap: var(--space-2);
-    margin: 0 0 var(--space-1);
-  }
-
-  .consent-banner__actions .consent-btn {
-    flex: 1 1 auto;
-    min-width: 0;
-    padding: 12px 14px;
-    font-size: var(--fs-small);
-  }
-
-  .consent-details__summary { font-size: var(--fs-small); }
-
-  /* Fullscreen details: opening the disclosure on compact viewports swaps
-     the bar for a fullscreen fixed panel (tracking.js adds
-     .consent-banner--details-open, which hides the bar via visibility — the
-     panel overrides visibility so it stays rendered; visibility:hidden also
-     removes the bar's controls from the tab order and the a11y tree, so no
-     obscured focus can occur). z-index -1 keeps the bar's card above the
-     panel inside the banner's own stacking context. The panel carries
-     exactly the desktop details content and scrolls internally; its bottom
-     padding reserves the badge strip (5rem) plus air. */
+/* Fullscreen-details mode (≤33.99em) — certified mechanics kept
+   byte-behaviorally: the Close control becomes visible (isFullscreenPanelMode's
+   CSS input), the open disclosure renders as a fullscreen fixed panel, and the
+   details-open class hides the strip. The superseded compact-bar geometry
+   overrides (5rem badge float, side insets, body display:none, compact font
+   overrides) are dropped — the relocated paragraphs live inside the
+   disclosure and the strip is bottom-anchored. */
+@media (max-width: 33.99em) {
   .consent-details__close {
     display: flex;
     position: sticky;
